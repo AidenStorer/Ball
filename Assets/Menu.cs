@@ -6,7 +6,8 @@ public class Menu : MonoBehaviour
     public bool open;
     [SerializeField] private Camera cam;
     [SerializeField] private Transform arrow;
-    private float startX;
+    private float startX; 
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

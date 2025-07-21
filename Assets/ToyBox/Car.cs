@@ -5,6 +5,9 @@ public class Car : Toy
     private Vector3 lastMousePos;
     private Vector3 mouseVelocity;
     private Rigidbody rb;
+    private bool activeCheck = false;
+    [SerializeField] private GameObject green;
+    [SerializeField] private GameObject red;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private new void Awake()
@@ -17,6 +20,8 @@ public class Car : Toy
     private new void FixedUpdate()
     {
         base.FixedUpdate();
+        if (activeCheck != active)
+            SwitchActive();
         if (!active)
             return;
         if (Input.GetKey(KeyCode.UpArrow)) 
@@ -33,11 +38,11 @@ public class Car : Toy
         }
         if (Input.GetKey(KeyCode.LeftArrow)) 
         {
-            transform.Rotate(0, 0, 2f);
+            transform.Rotate(0, 0, 4f);
         }
         if (Input.GetKey(KeyCode.RightArrow))
         {
-            transform.Rotate(0, 0, -2f);
+            transform.Rotate(0, 0, -4f);
         }
     }
     public override void OnRelease()
@@ -47,5 +52,20 @@ public class Car : Toy
     public override void OnClicked()
     {
         base.OnClicked();
+    }
+    private void SwitchActive()
+    {
+        if (active)
+        {
+            green.SetActive(true);
+            red.SetActive(false);
+            activeCheck = active;
+        }
+        else
+        {
+            green.SetActive(false);
+            red.SetActive(true);
+            activeCheck = active;
+        }
     }
 }

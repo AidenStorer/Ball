@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 using UnityRawInput;
 
 public class Controller : MonoBehaviour
@@ -12,6 +13,8 @@ public class Controller : MonoBehaviour
     private Toy lastObj;
     private Transform hoverObj;
     private bool clickThrough = false;
+
+    public List<Toy> toyList;
 
     [SerializeField] private Menu menu;
     [SerializeField] private Bin bin;
@@ -42,6 +45,7 @@ public class Controller : MonoBehaviour
             {
                 if (Vector3.Distance(activeObj.transform.position, bin.gameObject.transform.position) < 1)
                 {
+                    toyList.Remove(activeObj);
                     Destroy(activeObj.gameObject);
                     activeObj = null;
                     bin.gameObject.SetActive(false);
@@ -87,4 +91,19 @@ public class Controller : MonoBehaviour
         lastObj.active = true;
         toy.OnClicked();
     }
+    public void AddToList(Toy toy)
+    {
+        toyList.Add(toy);
+    }
+    public void ClearList()
+    {
+        activeObj = null;
+        lastObj= null;
+        foreach (Toy toy in toyList) 
+        {
+            Destroy(toy.gameObject);
+        }
+        toyList.Clear();
+    }
 }
+
