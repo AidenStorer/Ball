@@ -11,6 +11,9 @@ public class Controller : MonoBehaviour
     private Toy activeObj;
     private bool clickThrough = false;
 
+    [SerializeField] private Menu menu;
+    [SerializeField] private Bin bin;
+
     void Awake()
     {
         //rb = GetComponent<Rigidbody>();
@@ -57,6 +60,8 @@ public class Controller : MonoBehaviour
                 if (hit.collider.TryGetComponent<Toy>(out Toy toy))
                 {
                     SetHeldObj(toy);
+                    if (menu.open)
+                        bin.gameObject.SetActive(true);
                 }
                 return;
             }
@@ -70,6 +75,17 @@ public class Controller : MonoBehaviour
         {
             if (activeObj == null)
                 return;
+            if (menu.open)
+            {
+                if (Vector3.Distance(activeObj.transform.position, bin.gameObject.transform.position) < 1)
+                {
+                    Destroy(activeObj.gameObject);
+                    activeObj = null;
+                    bin.gameObject.SetActive(false);
+                    return;
+                }
+                bin.gameObject.SetActive(false);
+            }
             activeObj.OnRelease();
             activeObj= null;
         }

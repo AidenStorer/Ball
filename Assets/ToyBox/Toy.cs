@@ -3,7 +3,6 @@ using UnityEngine;
 public class Toy : MonoBehaviour
 {
     public bool holding = false;
-    private Rigidbody rb;
     public float screenPaddingX = 50f; // How far inside the screen horizontally
     public float screenPaddingY = 50f;
     public Camera cam;
