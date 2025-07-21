@@ -26,14 +26,12 @@ public class Ball : Toy
             mouseVelocity = (calculateSpeed - lastMousePos) / Time.fixedDeltaTime;
             lastMousePos = calculateSpeed;
         }
-        Debug.Log(mouseVelocity);
         return;
     }
     public override void OnRelease()
     {
         base.OnRelease();
         rb.isKinematic = false;
-        Debug.Log(mouseVelocity);
         rb.AddForce(mouseVelocity * 0.5f, ForceMode.Impulse);
     }
     public override void OnClicked()

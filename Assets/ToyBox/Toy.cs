@@ -6,6 +6,7 @@ public class Toy : MonoBehaviour
     public float screenPaddingX = 50f; // How far inside the screen horizontally
     public float screenPaddingY = 50f;
     public Camera cam;
+    public bool active = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected void Awake()
     {

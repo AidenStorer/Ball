@@ -9,6 +9,8 @@ public class Controller : MonoBehaviour
     public TransparentWindow tran;
 
     private Toy activeObj;
+    private Toy lastObj;
+    private Transform hoverObj;
     private bool clickThrough = false;
 
     [SerializeField] private Menu menu;
@@ -18,22 +20,6 @@ public class Controller : MonoBehaviour
     {
         //rb = GetComponent<Rigidbody>();
     }
-
-    private void OnEnable()
-    {
-        RawInput.Start();
-        RawInput.OnKeyDown += OnClick;
-        RawInput.OnKeyUp += OnRelease;
-        RawInput.WorkInBackground = true;
-        RawInput.InterceptMessages = false;
-    }
-
-    private void OnDisable()
-    {
-        RawInput.OnKeyDown -= OnClick;
-        RawInput.OnKeyUp -= OnRelease;
-        RawInput.Stop();
-    }
     private void ToggleClickThrough(bool toggle)
     {
         if (clickThrough == toggle)
@@ -41,37 +27,14 @@ public class Controller : MonoBehaviour
         tran.SetClickthrough(toggle);
         clickThrough = toggle;
     }
-    private void SetHeldObj(Toy toy)
+    private void Update()
     {
-        activeObj = toy;
-        toy.OnClicked();
-    }
-    private void OnClick(RawKey key)
-    {
-        if (key.Equals(RawKey.LeftButton))
+        if (lastObj != null && !Application.isFocused)
         {
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            LayerMask layer = LayerMask.GetMask("Interactable", "Menu");
-
-            if (Physics.Raycast(ray, out hit, 100f, layer))
-            {
-                ToggleClickThrough(true);
-                if (hit.collider.TryGetComponent<Toy>(out Toy toy))
-                {
-                    SetHeldObj(toy);
-                    if (menu.open)
-                        bin.gameObject.SetActive(true);
-                }
-                return;
-            }
-            ToggleClickThrough(false);
+            lastObj.active = false;
+            lastObj = null;
         }
-    }
-
-    private void OnRelease(RawKey key)
-    {
-        if (key.Equals(RawKey.LeftButton))
+        if (Input.GetMouseButtonUp(0))
         {
             if (activeObj == null)
                 return;
@@ -87,7 +50,41 @@ public class Controller : MonoBehaviour
                 bin.gameObject.SetActive(false);
             }
             activeObj.OnRelease();
-            activeObj= null;
+            activeObj = null;
+            return;
         }
+        if (Input.GetMouseButtonDown(0)) 
+        {
+            if (hoverObj == null || activeObj != null)
+                return;
+            if (hoverObj.TryGetComponent<Toy>(out Toy toy))
+            {
+                SetHeldObj(toy);
+                if (menu.open)
+                    bin.gameObject.SetActive(true);
+            }
+        }
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        LayerMask layer = LayerMask.GetMask("Interactable", "Menu");
+
+        if (Physics.Raycast(ray, out hit, 100f, layer))
+        {
+            ToggleClickThrough(true);
+            hoverObj = hit.collider.transform;
+            return;
+        }
+        hoverObj = null;
+        if (activeObj == null)
+            ToggleClickThrough(false);
+    }
+    private void SetHeldObj(Toy toy)
+    {
+        if (lastObj!= null)
+            lastObj.active = false;
+        activeObj = toy;
+        lastObj = activeObj;
+        lastObj.active = true;
+        toy.OnClicked();
     }
 }

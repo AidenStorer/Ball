@@ -17,16 +17,16 @@ public class Car : Toy
     private new void FixedUpdate()
     {
         base.FixedUpdate();
+        if (!active)
+            return;
         if (Input.GetKey(KeyCode.UpArrow)) 
         {
-            Debug.Log("Up");
             Quaternion rotation = Quaternion.Euler(0, 0, transform.eulerAngles.z);
             Vector3 rotatedUp = rotation * Vector3.up;
             rb.AddForce(rotatedUp * 200f, ForceMode.Acceleration);
         }
         if (Input.GetKey(KeyCode.DownArrow))
         {
-            Debug.Log("Up");
             Quaternion rotation = Quaternion.Euler(0, 0, transform.eulerAngles.z);
             Vector3 rotatedUp = rotation * Vector3.up;
             rb.AddForce(rotatedUp * -200f, ForceMode.Acceleration);
