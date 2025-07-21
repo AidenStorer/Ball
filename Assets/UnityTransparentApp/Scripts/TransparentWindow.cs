@@ -40,13 +40,6 @@ public class TransparentWindow : MonoBehaviour
         DwmExtendFrameIntoClientArea(hWnd, ref margins);
 #endif
     }
-    private void Update()
-    {
-#if !UNITY_EDITOR
-        //bool isOverUI = Physics2D.OverlapPoint(Camera.main.ScreenToWorldPoint(Input.mousePosition)) != null;
-        //SetClickthrough(!isOverUI);
-#endif
-    }
 
     public void SetClickthrough(bool clickthrough)
     {

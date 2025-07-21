@@ -8,14 +8,7 @@ public class Controller : MonoBehaviour
     public Camera cam;
     public TransparentWindow tran;
 
-    public float screenPaddingX = 50f; // How far inside the screen horizontally
-    public float screenPaddingY = 50f; // How far inside the screen vertically
-
-    private bool holding = false;
-    private Vector3 lastMousePos;
-    private Vector3 mouseVelocity;
-    private Rigidbody rb;
-    private Transform hoverObj;
+    private Toy activeObj;
     private bool clickThrough = false;
 
     void Awake()
@@ -38,60 +31,17 @@ public class Controller : MonoBehaviour
         RawInput.OnKeyUp -= OnRelease;
         RawInput.Stop();
     }
-
-    void FixedUpdate()
-    {
-        if (holding)
-        {
-            Debug.Log("Holding");
-            Debug.Log(lastMousePos);
-            Vector3 mousePos = Input.mousePosition;
-            mousePos.z = cam.WorldToScreenPoint(hoverObj.position).z;
-            mousePos.x = Mathf.Clamp(mousePos.x, screenPaddingX, Screen.width - screenPaddingX);
-            mousePos.y = Mathf.Clamp(mousePos.y, screenPaddingY, Screen.height - screenPaddingY);
-            Vector3 currentMousePos = cam.ScreenToWorldPoint(mousePos);
-            Vector3 calculateSpeed = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
-
-            hoverObj.position = currentMousePos;
-
-            if (calculateSpeed != lastMousePos)
-            {
-                mouseVelocity = (calculateSpeed - lastMousePos) / Time.fixedDeltaTime;
-                lastMousePos = calculateSpeed;
-            }
-            return;
-        }
-        //ToggleClickThrough(false, null);
-    }
-    private void ToggleClickThrough(bool toggle, Transform obj)
+    private void ToggleClickThrough(bool toggle)
     {
         if (clickThrough == toggle)
             return;
-        Debug.Log("ClickSet");
         tran.SetClickthrough(toggle);
         clickThrough = toggle;
-        if (obj == null)
-        {
-            holding= false;
-            hoverObj = null;
-            if (rb != null)
-                rb.isKinematic = false;
-            rb = null;
-            return;
-        }
-        hoverObj = obj;
-        if (hoverObj.TryGetComponent<Rigidbody>(out Rigidbody rig))
-        {
-            rb = rig;
-            rb.isKinematic = true;
-            holding = true;
-            return;
-        }
-        holding = false;
-        hoverObj = null;
-        if (rb != null)
-            rb.isKinematic = false;
-        rb = null;
+    }
+    private void SetHeldObj(Toy toy)
+    {
+        activeObj = toy;
+        toy.OnClicked();
     }
     private void OnClick(RawKey key)
     {
@@ -103,11 +53,14 @@ public class Controller : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, 100f, layer))
             {
-                Debug.Log("Raycast");
-                ToggleClickThrough(true, hit.collider.transform);
+                ToggleClickThrough(true);
+                if (hit.collider.TryGetComponent<Toy>(out Toy toy))
+                {
+                    SetHeldObj(toy);
+                }
                 return;
             }
-            ToggleClickThrough(false, null);
+            ToggleClickThrough(false);
         }
     }
 
@@ -115,12 +68,10 @@ public class Controller : MonoBehaviour
     {
         if (key.Equals(RawKey.LeftButton))
         {
-            if (!holding)
+            if (activeObj == null)
                 return;
-            Debug.Log("Released");
-            rb.isKinematic = false;
-            rb.AddForce(mouseVelocity * 0.5f, ForceMode.Impulse);
-            ToggleClickThrough(false, null);
+            activeObj.OnRelease();
+            activeObj= null;
         }
     }
 }
