@@ -25,6 +25,10 @@ public class Toy : MonoBehaviour
         Vector3 currentMousePos = cam.ScreenToWorldPoint(mousePos);
         transform.position = currentMousePos;
     }
+    protected void Update()
+    {
+        
+    }
     public virtual void OnClicked()
     {
         holding = true;
